@@ -64,6 +64,9 @@ const Gengame = () => {
                   const guessedWord = board[currentRow].join('');
 
                   if (guessedWord === targetWord) {
+                    const newBoard = [...board];
+                    newBoard[currentRow] = targetWord.split('')
+                    setBoard(newBoard)
                     SetGameStatus('won');
                     setShowTryAgain(true);
                     alert('Congratulations! You guessed the correct word')
@@ -88,17 +91,14 @@ const Gengame = () => {
     <div className="flex flex-col items-center">
     
     {board.map((row, rowIndex) => (
-      <div 
-        key={rowIndex} 
-        className="flex justify-center gap-x-2 font-bold text-[40px] mt-2"
-      >
+      <div key={rowIndex} className="flex justify-center gap-x-2 font-bold text-[40px] mt-2">
         {row.map((letter, letterIndex) => (
           <div
             key={`${rowIndex}-${letterIndex}`}
             className={`
               border w-[62px] h-[62px] grid items-center
               ${currentRow === rowIndex && currentTile === letterIndex ? 'border-2 border-blue-500' : ''}
-              ${letter ? 'border-gray-400' : 'border-gray-200'}
+              ${letter === targetWord[letterIndex] ? 'bg-green-500 border-green-500 text-white' : 'border-gray-400'}
             `}
           >
             {letter}
