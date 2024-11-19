@@ -10,15 +10,41 @@ const Gengame = () => {
     const [currentTile, setCurrentTile] = useState(0);
 // The fucntion uses UseState to locate the tile the user is on and updated it based on the tile the user is on. Default state is 0 which is the first tile.
 
+    const [targetWord, setTargetWord] = useState('')
+
+    const [gameStatus, SetGameStatus] = useState('loading')
+
+    const [showTryAgain, setShowTryAgain] = useState(false)
+
+    useEffect ( () => {
+      const fetchRandomWord = async () => {
+        try {
+          const response = await fetch('https://random-word-api.vercel.app/api?words=1&length=5');
+          const words = await response.json();
+          const word = words[0].toUpperCase();
+          console.log('Fetched word:', word);
+          setTargetWord(word);
+          SetGameStatus('playing');
+        } catch (error) {
+          console.error('Failed to fetch word', error);
+          SetGameStatus('error');
+        }
+      };
+      fetchRandomWord()
+    }, []);
+
+
+
 
     useEffect ( () => {
         const handleKeyDown = (event) => {
+          if (gameStatus !== 'playing') return;
             const key = event.key.toUpperCase();    
 // Simply using using effect to record the event of a key pressed/or rather letter entered and convert it to upped case 
 
 
             if (currentRow < 6) {
-                if (/[A-Z]/.test(key) && currentTile < 5 ) {
+                if (/^[A-Z]$/.test(key) && currentTile < 5 ) {
 //Basically firstly checks is the current row, if less than 6 => Provided that any letter typed is a capital lettter and check the current tile 
                     const newBoard = [...board];
                     newBoard[currentRow][currentTile] = key;
@@ -35,8 +61,20 @@ const Gengame = () => {
                 }
 
                 if (key === 'ENTER' && currentTile === 5) {
-                  setCurrentRow(currentRow + 1);
-                  setCurrentRow(0);
+                  const guessedWord = board[currentRow].join('');
+
+                  if (guessedWord === targetWord) {
+                    SetGameStatus('won');
+                    setShowTryAgain(true);
+                    alert('Congratulations! You guessed the correct word')
+                  }else if (currentRow === 5) {
+                    SetGameStatus('lost');
+                    setShowTryAgain(true)
+                    alert(`Sorry, the correct word was ${targetWord}.` )
+                  }
+
+                  setCurrentRow(prevRow => prevRow+ 1);
+                  setCurrentTile(0);
                 }
             }
         };
@@ -44,7 +82,7 @@ const Gengame = () => {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown',handleKeyDown);
 
-    }, [board, currentRow, currentTile] );
+    }, [board, currentRow, currentTile, targetWord, gameStatus] );
 
   return (
     <div className="flex flex-col items-center">
@@ -68,6 +106,23 @@ const Gengame = () => {
         ))}
       </div>
     ))}
+
+{showTryAgain && (
+      <div className="mt-4">
+        <button
+          className="bg-slate-950 border hover:bg-white hover:text-black text-white font-bold py-2 px-4 "
+          onClick={() => {
+            setCurrentRow(0);
+            setCurrentTile(0);
+            setBoard(Array(6).fill().map(() => Array(5).fill('')));
+            SetGameStatus('loading');
+            setShowTryAgain(false);
+          }}
+        >
+          Try Again
+        </button>
+      </div>
+    )}
 
     <div className="mt-4 text-sm text-gray-500">
       {currentRow < 6 ? 'Type letters to play' : 'Game Over'}
