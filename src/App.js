@@ -8,7 +8,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path='/home' index element = {<Home />} />
+          <Route path='/' index element = {<Home />} />
           <Route path='/doodle' element = {<Playgame />} />
           <Route path='*' element = {<Nopage />}  />
         </Routes>
