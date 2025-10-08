@@ -1,1 +1,1 @@
-## Waht do you expect, it's a ripoff of wordle
+## What do you expect, it's a ripoff of wordle
